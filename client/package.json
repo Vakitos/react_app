@@ -20,7 +20,6 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.5",
-    "react-scripts": "^5.0.1",
     "sass": "^1.89.0",
     "stream-browserify": "^3.0.0",
     "util": "^0.12.5",
@@ -41,6 +40,7 @@
   },
   "devDependencies": {
     "@babel/preset-react": "^7.26.3",
+    "react-scripts": "^5.0.1",
     "assert": "^2.1.0",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.1",
