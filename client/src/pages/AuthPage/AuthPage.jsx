@@ -15,6 +15,9 @@ export default function AuthPage() {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  // Используем переменные окружения для адреса API
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
   const changeHandler = (event) => {
     setForm({ ...form, [event.target.name]: event.target.value });
   };
@@ -27,7 +30,7 @@ export default function AuthPage() {
     const endpoint = isLogin ? "login" : "registration";
     try {
       const response = await axios.post(
-        `http://localhost:5000/api/auth/${endpoint}`,
+        `${API_URL}/api/auth/${endpoint}`,
         form,
         {
           withCredentials: true,
@@ -37,35 +40,32 @@ export default function AuthPage() {
         }
       );
 
-      console.log("Server Response:", response.data); // Логирование для отладки
+      // Для продакшена сохраняем токен в localStorage
+      if (isLogin && response.data.token) {
+        localStorage.setItem("token", response.data.token);
+      }
 
-      // Обработка успешного входа
       if (isLogin) {
-        if (!response.data.token) {
-          throw new Error("Токен не получен");
-        }
         login(response.data.token);
         navigate("/");
       } else {
-        // Обработка успешной регистрации
         setErrorMessage("Регистрация успешна! Войдите в систему.");
-        setIsLogin(true); // Переключаем на форму входа
-        setForm({ email: "", password: "" }); // Сброс формы
+        setIsLogin(true);
+        setForm({ email: "", password: "" });
       }
     } catch (error) {
       let message = "Ошибка соединения";
-
-      if (error.response) {
-        // Обработка HTTP ошибок
-        message =
-          error.response.data?.message ||
-          `Ошибка ${isLogin ? "авторизации" : "регистрации"}`;
-      } else if (error.request) {
-        // Нет ответа от сервера
-        message = "Сервер не отвечает";
-      } else {
-        // Другие ошибки
-        message = error.message;
+      
+      // Детальная обработка ошибок сети
+      if (error.code === "ERR_NETWORK") {
+        message = `Сервер недоступен! Проверьте:
+        1. Сервер должен быть доступен по адресу: ${API_URL}
+        2. CORS должен разрешать запросы с: ${window.location.origin}
+        3. Сервер должен принимать HTTPS-запросы`;
+      } else if (error.response?.status === 401) {
+        message = "Неверный email или пароль";
+      } else if (error.response?.data?.message) {
+        message = error.response.data.message;
       }
 
       setErrorMessage(message);
