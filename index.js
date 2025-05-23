@@ -1,22 +1,29 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const cors = require("cors"); 
+const cors = require("cors");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Точная настройка CORS
+
 const corsOptions = {
-  origin: 'http://localhost:3000', // явно указываем фронтенд URL
-  credentials: true, // разрешаем передачу кук
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // разрешенные методы
-  allowedHeaders: ['Content-Type', 'Authorization'] // разрешенные заголовки
+  origin: [
+    'http://localhost:3000', 
+    'https://adrenalineboost.netlify.app' 
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Set-Cookie'],
+  optionsSuccessStatus: 200
 };
 
-app.use(cors(corsOptions)); // применяем настройки CORS
+
+app.set('trust proxy', 1);
+
+app.use(cors(corsOptions));
 app.use(express.json({ extended: true }));
 
-// Явно обрабатываем OPTIONS запросы
+
 app.options('*', cors(corsOptions));
 
 app.use('/api/auth', require('./routes/auth.route'));
@@ -31,12 +38,12 @@ async function start() {
       }
     );
 
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server has been started on ${PORT}`);
     });
   } catch (e) {
     console.error("Error connecting to MongoDB", e);
-    process.exit(1); // завершаем процесс с ошибкой
+    process.exit(1);
   }
 }
 
