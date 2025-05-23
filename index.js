@@ -7,12 +7,12 @@ const mongoose = require('mongoose');
 
 const app = express();
 
-// Конфигурация CORS
+
 const corsOptions = {
   origin: function (origin, callback) {
     const allowedOrigins = [
-      'https://adrenalineboost.netlify.app', // Продакшен фронтенд
-      'http://localhost:3000' // Локальная разработка
+      'https://adrenalineboost.netlify.app',
+      'http://localhost:3000' 
     ];
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
